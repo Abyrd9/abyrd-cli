@@ -1,0 +1,25 @@
+{
+  "name": "abyrd-react-boilerplate",
+  "version": "1.0.0",
+  "description": "This is a React Boilerplate project with prompts for Andrew Byrd's specific projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "npm",
+    "abyrd-react-boilerplate",
+    "boilerplate",
+    "react"
+  ],
+  "author": "Andrew Byrd",
+  "license": "ISC",
+  "bin": {
+    "abyrd-react-boilerplate": "./index.js"
+  },
+  "dependencies": {
+    "commander": "^2.15.1",
+    "prompt": "^1.0.0",
+    "replace-in-file": "^3.4.0"
+  }
+}
