@@ -28,22 +28,25 @@ var schema = {
       required: false,
       default: ''
     },
-    'Sass': {
-      description: 'Would you like to use Sass/Scss for this project?',
-      type: 'boolean',
-      message: 'answers includes: "true", "t", "false", "f"',
+    'Styles': {
+			description: 'Would you like to use Sass/Scss or StyledComponents for this project?',
+			pattern: /^((\bsass\b)|(\bstyled\b))+$/,
+      type: 'string',
+      message: 'answer should be either "sass" or "styled"',
       required: true,
-    },
-    'StyledComponents': {
-      description: 'Would you like to use Styled Components in this project?',
-      type: 'boolean',
-      message: 'answers includes: "true", "t", "false", "f"',
-      required: true,
-    },
+		},
+		'State Management': {
+			description: 'Would you like to start this project with Redux, Context, or None?',
+			pattern: /^((\bredux\b)|(\bcontext\b)|(\bnone\b))+$/,
+			type: 'string',
+			message: 'answer should be "redux", "context", or "none"',
+			required: true,
+		},
     'Firebase': {
-      description: 'Would you like to use firebase in this project?',
-      type: 'boolean',
-      message: 'answers includes: "true", "t", "false", "f"',
+			description: 'Would you like to use firebase in this project?',
+			pattern: /^(^y(es)?$)|(^n(o)?$)/,
+      type: 'string',
+      message: 'answer should be "y" or "yes" or "n" or "no"',
       required: true,
     }
   }
@@ -75,25 +78,39 @@ prompt.get(schema, (err, res) => {
 		if (err) return console.log(err);
 		const npm = (process.platform === "win32" ? "npm.cmd" : "npm");
 		const commandDev = ["install", "--save-dev", "@babel/core", "@babel/preset-env", "@babel/preset-react", "@babel/preset-stage-2", "babel-loader", "uglifyjs-webpack-plugin", "webpack", "webpack-cli", "webpack-dev-server", "webpack-merge"];
-		if (res['Sass']) {
+		// Truths from Prompts
+		console.log(res['Styles'])
+		const useSass = res['Styles'] === 'sass';
+		const useStyled = res['Styles'] === 'styled';
+		const useRedux = res['State Management'] === 'redux';
+		const useContext = res['State Management'] === 'context';
+		const useNoStateManagement = res['State Management'] === 'none';
+		const useFirebase = res['Firebase'] === 'y' || res['Firebase'] === 'yes';
+
+		if (useSass) {
 			const cssPackages = ["css-loader", "extract-text-webpack-plugin","node-sass", "optimize-css-assets-webpack-plugin", "sass-loader", "style-loader"];
 			commandDev.push(...cssPackages);
 		}
 		const runDevCommand = spawn(npm, commandDev, { stdio: 'inherit' });
+
 		const command = ["install", "--save", "express", "react", "react-dom"];
-		if (res['StyledComponents']) {
+		if (useStyled) {
 			command.push('styled-components');
 		}
-		if (res['Firebase']) {
+		if (useRedux) {
+			const reduxDependencies = ["react-redux", "redux", "redux-logger", "redux-promise-middleware", "redux-thunk"];
+			command.push(...reduxDependencies);
+		}
+		if (useFirebase) {
 			command.push('firebase');
 		}
 		const runCommand = spawn(npm, command, { stdio: 'inherit' });
 	})
 	
-	fse.copy(__dirname + '/templates', './', err => {
+	fse.copy(__dirname + '/template', './', err => {
 		if (err) return console.log(err);
 
-		if (!res['Sass']) {
+		if (useStyled) {
 			fse.remove("./configSass", err => {
 				if (err) {
 					console.log('failed to delete extra config directory')
@@ -128,7 +145,9 @@ prompt.get(schema, (err, res) => {
 				.catch(err => console.log(err))
 			replace(removeLinks)
 				.catch(err => console.log(err))
-		} else {
+		}
+		
+		if (useSass) {
 			fse.remove("./config", err => {
 				if (err) {
 					console.log('failed to delete extra config directory')
@@ -140,12 +159,51 @@ prompt.get(schema, (err, res) => {
 					})
 				}
 			})
-		}
-
-		if (!res['StyledComponents']) {
 			fse.remove('./src/js/style', err => {
 				if (err) {
 					console.log('failed to delete style folder in js');
+				}
+			})
+		}
+
+		if (useRedux || useNoStateManagement) {
+			fse.remove('./src/js/ContextTheme.js', err => {
+				if (err) {
+					console.log('unable to delete the ContextTheme file');
+				}
+			})
+		}
+
+		if (useContext || useNoStateManagement) {
+			fse.remove('./src/js/actions', err => {
+				if (err) {
+					console.log('unable to delete the actions folder');
+				}
+			})
+			fse.remove('./src/js/reducers', err => {
+				if (err) {
+					console.log('unable to delete the reducers folder');
+				}
+			})
+			fse.remove('./src/js/store.js', err => {
+				if (err) {
+					console.log('unable to delete the store.js file');
+				}
+			})
+
+			const removeProvider = {
+				files: './src/index.js',
+				from: ["import {Provider} from 'react-redux';", "import store from './js/store';", "<Provider store={store}>", "</Provider>"],
+				to: ['', '', '', '']
+			}
+			replace(removeProvider)
+				.catch(err => console.log(err));
+		}
+
+		if (!useFirebase) {
+			fse.remove("./src/js/utils/Firebase.js", err => {
+				if (err) {
+					console.log('Failed to delete Firebase.js file');
 				}
 			})
 		}
