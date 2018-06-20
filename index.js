@@ -3,9 +3,9 @@
 const path = require("path");
 const fs = require('fs');
 const replace = require('replace-in-file');
-const program = require('commander');
 const prompt = require('prompt');
 const { spawn } = require('child_process');
+const fse = require('fs-extra');
 
 const currentPath = path.resolve(".");
 const pathToFile = path.resolve(__dirname + '/template/templatePackage.json');
@@ -57,9 +57,11 @@ prompt.get(schema, (err, res) => {
     "version": "1.0.0",
     "description": res['Package Description'],
     "main": "index.js",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-    },
+		"scripts": {
+			"start:dev": "webpack-dev-server --mode development --config config/webpack.base.config.js --open --hot --history-api-fallback",
+			"prestart:prod": "webpack --mode production --config config/webpack.prod.config.js --env.NODE_ENV=production --progress",
+			"start:prod": "node server"
+		},
     "repository": {
       "type": "git",
       "url": res['Package Repo'],
@@ -67,58 +69,89 @@ prompt.get(schema, (err, res) => {
     "keywords": [],
     "author": "Andrew Byrd",
     "license": "MIT",
-    "devDependencies": {
-      "@babel/core": "^7.0.0-beta.46",
-      "@babel/preset-env": "^7.0.0-beta.46",
-      "@babel/preset-react": "^7.0.0-beta.46",
-      "@babel/preset-stage-2": "^7.0.0-beta.46",
-      "babel-loader": "^8.0.0-beta.2",
-      "uglifyjs-webpack-plugin": "^1.2.5",
-      "webpack": "^4.8.1",
-      "webpack-cli": "^2.1.3",
-      "webpack-dev-server": "^3.1.4",
-      "webpack-merge": "^4.1.2",
-    },
-    "dependencies": {
-      "express": "^4.16.3",
-      "react": "^16.3.2",
-      "react-dom": "^16.3.2"
-    }
-  }
-  console.log(packageJson);
-  if (res['Sass']) {
-    packageJson = {
-      ...packageJson, devDependencies: {
-        ...packageJson.devDependencies,
-        "css-loader": "^0.28.11",
-        "extract-text-webpack-plugin": "^4.0.0-beta.0",
-        "node-sass": "^4.9.0",
-        "optimize-css-assets-webpack-plugin": "^4.0.1",
-        "sass-loader": "^7.0.1",
-        "style-loader": "^0.21.0",
-      }
-    };
-  }
-  fs.writeFile("./package.json", JSON.stringify(packageJson, null, 2), err => {
-    if (err) return console.log(err);
-    const child = spawn('yarn');
-    child.on('exit', (code, signal) => {
-      'child process exited with ' + `code ${code} and signal ${signal}`
-    })
-  })
+	}
 
+  fs.writeFile("./package.json", JSON.stringify(packageJson, null, 2), err => {
+		if (err) return console.log(err);
+		const npm = (process.platform === "win32" ? "npm.cmd" : "npm");
+		const commandDev = ["install", "--save-dev", "@babel/core", "@babel/preset-env", "@babel/preset-react", "@babel/preset-stage-2", "babel-loader", "uglifyjs-webpack-plugin", "webpack", "webpack-cli", "webpack-dev-server", "webpack-merge"];
+		if (res['Sass']) {
+			const cssPackages = ["css-loader", "extract-text-webpack-plugin","node-sass", "optimize-css-assets-webpack-plugin", "sass-loader", "style-loader"];
+			commandDev.push(...cssPackages);
+		}
+		const runDevCommand = spawn(npm, commandDev, { stdio: 'inherit' });
+		const command = ["install", "--save", "express", "react", "react-dom"];
+		if (res['StyledComponents']) {
+			command.push('styled-components');
+		}
+		if (res['Firebase']) {
+			command.push('firebase');
+		}
+		const runCommand = spawn(npm, command, { stdio: 'inherit' });
+	})
+	
+	fse.copy(__dirname + '/templates', './', err => {
+		if (err) return console.log(err);
+
+		if (!res['Sass']) {
+			fse.remove("./configSass", err => {
+				if (err) {
+					console.log('failed to delete extra config directory')
+				}
+			})
+			fse.remove("./src/scss", err => {
+				if (err) {
+					console.log('failed to delete src/scss/')
+				}
+			})
+			fse.remove("./src/style.scss", err => {
+				if (err) {
+					console.log('failed to delete src/style')
+				}
+			})
+			fse.remove("./dist/style.css", err => {
+				if (err) {
+					console.log('failed to delete dist/style')
+				}
+			})
+			const removeImport = {
+				files: './src/index.js',
+				from: "import './styles.scss';",
+				to: ''
+			}
+			const removeLinks = {
+				files: ['./dist/index.html', './src/index.html'],
+				from: '<link rel="stylesheet" href="style.css" type="text/css">',
+				to: ''
+			}
+			replace(removeImport)
+				.catch(err => console.log(err))
+			replace(removeLinks)
+				.catch(err => console.log(err))
+		} else {
+			fse.remove("./config", err => {
+				if (err) {
+					console.log('failed to delete extra config directory')
+				} else {
+					fse.rename("./configSass", "./config", err => {
+						if (err) {
+							console.log('Unable to rename folder');
+						}
+					})
+				}
+			})
+		}
+
+		if (!res['StyledComponents']) {
+			fse.remove('./src/js/style', err => {
+				if (err) {
+					console.log('failed to delete style folder in js');
+				}
+			})
+		}
+
+		console.log('Folder Structure Successfully copied!');
+	})
 
 
 })
-
-// const options = {
-//   files: pathToFile,
-//   from: /package-name/g,
-//   to: ''
-// }
-
-
-
-// console.log("This is Running on the command line!");
-// console.log(". = %s", path.resolve("."));
-// console.log("__dirname = %s", path.resolve(__dirname));

@@ -1,0 +1,11 @@
+@mixin depth($depth) {
+  @if $depth == top {
+    z-index: 3;
+  } @else if $depth == middle {
+    z-index: 2;
+  } @else if $depth == bottom {
+    z-index: 1;
+  } @else {
+    z-index: inherit;
+  }
+}

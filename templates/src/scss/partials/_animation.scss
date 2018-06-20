@@ -1,0 +1,11 @@
+@mixin animation($property, $time, $ease: 'ease') {
+  @if $ease == 'ease' {
+    transition: $property $time cubic-bezier(.2, 0, .5, 1);
+  } @else if $ease == 'ease-in' {
+    transition: $property $time cubic-bezier(.4, 0, .9, 1);
+  } @else if $ease == 'ease-out' {
+    transition: $property $time cubic-bezier(.1, 0, .6, 1);
+  }  @else if $ease == 'ease-in-out' {
+    transition: $property $time cubic-bezier(.4, 0, .6, 1);
+  }
+}
