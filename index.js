@@ -93,7 +93,7 @@ prompt.get(schema, (err, res) => {
 		}
 		const runDevCommand = spawn(npm, commandDev, { stdio: 'inherit' });
 
-		const command = ["install", "--save", "express", "react", "react-dom"];
+		const command = ["install", "--save", "express", "react", "react-dom", "immer"];
 		if (useStyled) {
 			command.push('styled-components');
 		}
@@ -167,7 +167,7 @@ prompt.get(schema, (err, res) => {
 		}
 
 		if (useRedux || useNoStateManagement) {
-			fse.remove('./src/js/ContextTheme.js', err => {
+			fse.remove('./src/js/components/ContextTheme.js', err => {
 				if (err) {
 					console.log('unable to delete the ContextTheme file');
 				}
