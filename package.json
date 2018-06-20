@@ -15,7 +15,7 @@
   "author": "Andrew Byrd",
   "license": "ISC",
   "bin": {
-    "abyrd-react-boilerplate": "./index.js"
+    "abyrd-cli": "./index.js"
   },
   "dependencies": {
     "fs-extra": "^6.0.1",
