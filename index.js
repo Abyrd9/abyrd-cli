@@ -91,6 +91,7 @@ prompt.get(schema, (err, res) => {
 			'webpack-cli',
 			'webpack-dev-server',
 			'webpack-merge',
+			'file-loader'
 		];
 		// Truths from Prompts
 		const useSass = res['Styles'] === 'sass';
