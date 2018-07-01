@@ -85,7 +85,7 @@ prompt.get(schema, (err, res) => {
 			'@babel/preset-env',
 			'@babel/preset-react',
 			'@babel/preset-stage-2',
-			'"babel-loader@^8.0.0-beta"',
+			'babel-loader@^8.0.0-beta',
 			'uglifyjs-webpack-plugin',
 			'html-webpack-plugin',
 			'webpack',
