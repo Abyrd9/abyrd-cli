@@ -85,8 +85,9 @@ prompt.get(schema, (err, res) => {
 			'@babel/preset-env',
 			'@babel/preset-react',
 			'@babel/preset-stage-2',
-			'babel-loader',
+			'"babel-loader@^8.0.0-beta"',
 			'uglifyjs-webpack-plugin',
+			'html-webpack-plugin',
 			'webpack',
 			'webpack-cli',
 			'webpack-dev-server',
@@ -104,7 +105,7 @@ prompt.get(schema, (err, res) => {
 		const useNoStateManagement = res['State Management'] === 'none';
 		const useFirebase = res['Firebase'] === 'y' || res['Firebase'] === 'yes';
 
-		if (useStyled) {
+		if (useSass) {
 			const cssPackages = [
 				'css-loader',
 				'extract-text-webpack-plugin',
