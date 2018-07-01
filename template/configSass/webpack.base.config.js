@@ -1,6 +1,6 @@
 
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
 	devtool: 'source-map',
@@ -19,6 +19,12 @@ module.exports = {
           fallback: "style-loader",
           use: "css-loader!sass-loader",
         })
+			},
+			{
+        test: /\.(png|svg|jpg|gif)$/,
+          use: [
+            'file-loader'
+        ]
       }
     ]
   },

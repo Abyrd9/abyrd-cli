@@ -60,11 +60,11 @@ prompt.get(schema, (err, res) => {
 		description: res['Package Description'],
 		main: 'index.js',
 		scripts: {
-			'start:dev':
+			'dev':
 				'webpack-dev-server --mode development --config config/webpack.base.config.js --open --hot --history-api-fallback',
-			'prestart:prod':
+			'build':
 				'webpack --mode production --config config/webpack.prod.config.js --env.NODE_ENV=production --progress',
-			'start:prod': 'node server',
+			'prod': 'node server',
 		},
 		repository: {
 			type: 'git',
@@ -91,8 +91,11 @@ prompt.get(schema, (err, res) => {
 			'webpack-cli',
 			'webpack-dev-server',
 			'webpack-merge',
+			'webpack-manifest-plugin',
+			'sw-precache-webpack-plugin',
+			'file-loader',
 		];
-		// Truths from Prompts
+		// Booleans from Prompts
 		const useSass = res['Styles'] === 'sass';
 		const useStyled = res['Styles'] === 'styled';
 		const useNoStylePackage = res['Styles'] === 'none';

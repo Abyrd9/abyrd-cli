@@ -1,5 +1,4 @@
-
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	devtool: 'source-map',
@@ -11,7 +10,13 @@ module.exports = {
         use: {
           loader: 'babel-loader'
         }
-      },
+			},
+			{
+        test: /\.(png|svg|jpg|gif)$/,
+          use: [
+            'file-loader'
+        ]
+      }
     ]
   },
   plugins: [
