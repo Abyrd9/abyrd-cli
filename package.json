@@ -1,6 +1,6 @@
 {
   "name": "abyrd-cli",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "This is a cli tool for building react projects according to Andrew Byrd's Specifications",
   "main": "index.js",
   "scripts": {
