@@ -5,7 +5,7 @@ A cli tool to build React project templates based on Andrew Byrd's preferences
 ### Installing & Running
 
 ```
-npm install -g abyrd-react-boilerplate
+npm install -g abyrd-cli
 ```
 
 navigate to the desired destination folder and Run:
